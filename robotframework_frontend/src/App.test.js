@@ -1,8 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('renders header title and tabs', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByText(/Robot Test Console/i)).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Logs/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Batch Log/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Fail Log/i })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: /Config/i })).toBeInTheDocument();
 });

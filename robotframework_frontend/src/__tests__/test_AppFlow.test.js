@@ -2,7 +2,11 @@ import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import App from '../App';
 import { render } from '@testing-library/react';
-import { createApiMock, mockApiClient, mockUseEventSource } from './test_utils';
+import { createApiMock, mockApiClient, mockUseEventSource, resetApiMock } from './test_utils';
+
+beforeEach(() => {
+  resetApiMock();
+});
 
 test('app flow: start -> logs -> progress update -> stop -> edit/save config', async () => {
   const apiMock = createApiMock({
@@ -26,12 +30,7 @@ test('app flow: start -> logs -> progress update -> stop -> edit/save config', a
   fireEvent.click(start);
   await waitFor(() => expect(apiMock.run).toHaveBeenCalled());
 
-  // Refresh progress using app state's action via Controls is not directly exposed,
-  // but the UI shows progress based on state updates we control. We'll directly call refresh by simulating via API mocks:
-  // Move to simulate user interacting elsewhere, then call again in sequence by reusing component behaviors:
-  // Instead, validate that initial progress is reflected when later components call refresh (Header just consumes state);
-  // We'll manually trigger actions by invoking provider's refresh through calling it indirectly:
-  // Simplify by checking that our mocked EventSource logs are rendered:
+  // Check SSE rendered logs
   expect(screen.getByText('log-1')).toBeInTheDocument();
   expect(screen.getByText('log-2')).toBeInTheDocument();
 

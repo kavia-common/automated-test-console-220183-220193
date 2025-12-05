@@ -1,7 +1,11 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import LogViewer from '../components/LogViewer';
-import { createApiMock, mockApiClient, mockUseEventSource } from './test_utils';
+import { createApiMock, mockApiClient, mockUseEventSource, resetApiMock } from './test_utils';
+
+beforeEach(() => {
+  resetApiMock();
+});
 
 describe('LogViewer', () => {
   test('renders SSE messages when mode=logs', () => {

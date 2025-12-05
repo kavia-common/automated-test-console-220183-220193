@@ -1,7 +1,11 @@
 import React from 'react';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import Controls from '../components/Controls';
-import { renderWithProvider, createApiMock, mockApiClient } from './test_utils';
+import { renderWithProvider, createApiMock, mockApiClient, resetApiMock } from './test_utils';
+
+beforeEach(() => {
+  resetApiMock();
+});
 
 test('updates input fields and triggers start/stop', async () => {
   const apiMock = createApiMock();

@@ -1,7 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import Sidebar from '../components/Sidebar';
-import { createApiMock, mockApiClient } from './test_utils';
+import { createApiMock, mockApiClient, resetApiMock } from './test_utils';
+
+beforeEach(() => {
+  resetApiMock();
+});
 
 describe('Sidebar', () => {
   test('renders stats and cases from api', async () => {

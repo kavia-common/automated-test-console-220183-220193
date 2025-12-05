@@ -1,42 +1,46 @@
 /**
  * Shared test utilities: API client mock, EventSource hook mock helpers.
+ * Refactored to avoid out-of-scope variables in jest.mock factories by using
+ * a manual mock at src/api/__mocks__/client.js and providing per-test helpers.
  */
 import React from 'react';
 import { render } from '@testing-library/react';
 import { AppStateProvider } from '../state/appState';
 
-// Default API mock responses
+// Always mock the api client module using the manual mock file
+jest.mock('../api/client');
+
+// Pull helpers from the manual mock for configuring the api stub in test scope
+const { __helpers } = jest.requireMock('../api/client');
+
+// PUBLIC_INTERFACE
 export function createApiMock(overrides = {}) {
-  return {
-    root: jest.fn().mockResolvedValue('ok'),
-    run: jest.fn().mockResolvedValue({ status: 'started' }),
-    stop: jest.fn().mockResolvedValue({ status: 'stopped' }),
-    logs: jest.fn().mockResolvedValue(''),
-    stats: jest.fn().mockResolvedValue({ passed: 0, failed: 0, skipped: 0, total: 0 }),
-    caseStatus: jest.fn().mockResolvedValue({ cases: [] }),
-    progress: jest.fn().mockResolvedValue({ percent: 0, elapsed: 0, total: 0 }),
-    currentCaseInfo: jest.fn().mockResolvedValue(null),
-    getConfig: jest.fn().mockResolvedValue({ a: 1 }),
-    saveConfig: jest.fn().mockResolvedValue({ ok: true }),
-    listConfigFolders: jest.fn().mockResolvedValue([]),
-    uiLock: jest.fn().mockResolvedValue({}),
-    syncState: jest.fn().mockResolvedValue({}),
-    getState: jest.fn().mockResolvedValue({}),
-    batchLog: jest.fn().mockResolvedValue('B1\nB2'),
-    failLog: jest.fn().mockResolvedValue('F1\nF2'),
-    expectedTotal: jest.fn().mockResolvedValue(0),
-    ...overrides,
-  };
+  /** This is a public function. */
+  return __helpers.createApiMock(overrides);
 }
 
-export function mockApiClient(apiMock) {
-  jest.mock('../api/client', () => {
-    const original = jest.requireActual('../api/client');
-    return { ...original, api: apiMock, API_BASE: '' };
-  });
+// PUBLIC_INTERFACE
+export function mockApiClient(apiMockOrOverrides = {}) {
+  /** This is a public function. */
+  if (typeof apiMockOrOverrides === 'object' && typeof apiMockOrOverrides.root === 'function') {
+    // api object passed: copy methods onto the default mock
+    __helpers.setApiMock(apiMockOrOverrides);
+  } else {
+    // overrides passed: construct a new mock and set it
+    __helpers.setApiMock(apiMockOrOverrides);
+  }
+  return true;
 }
 
-// Mock the useEventSource hook with provided messages / status
+// PUBLIC_INTERFACE
+export function resetApiMock() {
+  /** This is a public function. */
+  __helpers.resetApiMock();
+}
+
+// Mock the useEventSource hook with provided messages / status.
+// Using factory-local closure values is safe here because this mock is created
+// within each test file's scope (and not shared across unrelated tests).
 export function mockUseEventSource({ messages = [], status = 'open' } = {}) {
   jest.mock('../hooks/useEventSource', () => ({
     useEventSource: () => ({
@@ -47,6 +51,8 @@ export function mockUseEventSource({ messages = [], status = 'open' } = {}) {
   }));
 }
 
+// PUBLIC_INTERFACE
 export function renderWithProvider(ui) {
+  /** This is a public function. */
   return render(<AppStateProvider>{ui}</AppStateProvider>);
 }

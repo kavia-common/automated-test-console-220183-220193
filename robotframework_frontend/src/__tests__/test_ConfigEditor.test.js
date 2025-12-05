@@ -1,7 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import ConfigEditor from '../components/ConfigEditor';
-import { createApiMock, mockApiClient } from './test_utils';
+import { createApiMock, mockApiClient, resetApiMock } from './test_utils';
+
+beforeEach(() => {
+  resetApiMock();
+});
 
 test('loads config on mount and saves JSON successfully', async () => {
   const apiMock = createApiMock({
